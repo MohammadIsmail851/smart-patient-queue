@@ -19,6 +19,7 @@ import {
   ClipboardList, History, Database, AlertTriangle, Stethoscope, Bot
 } from 'lucide-react';
 import PatientAssistantChat from './components/chat/PatientAssistantChat.jsx';
+import Dashboard from './components/Dashboard.jsx';
 
 export default function App() {
   // Persistence state
@@ -240,229 +241,24 @@ export default function App() {
   ]));
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
-      {/* Top Application Header */}
-      <header
-        className="app-header-container"
-        style={{
-          background: 'var(--bg-card)',
-          borderBottom: '1px solid var(--border-subtle)',
-          padding: '0.9rem 2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: 'var(--shadow-sm)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 30,
-        }}
-      >
-        {/* Brand & Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <div style={{
-            background: 'var(--color-blue-subtle)',
-            padding: '0.5rem',
-            borderRadius: 10,
-            border: '1px solid var(--color-blue-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <Activity size={24} color="#2563EB" />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.025em', color: 'var(--text-primary)' }}>
-                Smart Patient Queue & Emergency Triage
-              </h1>
-              <span style={{
-                background: 'var(--color-blue-subtle)',
-                color: 'var(--color-primary-blue)',
-                border: '1px solid var(--color-blue-border)',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                padding: '0.15rem 0.5rem',
-              }}>
-                Anvesh '26
-              </span>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>
-              Deterministic Acuity Triage • Clinical Workflow Support System
-            </p>
-          </div>
-        </div>
-
-        {/* Persistence Status & Header Actions */}
-        <div className="app-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          {/* Persistence status indicator */}
-          <div
-            title="Encounters, assessments, and events persist in browser local storage across refreshes."
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'var(--bg-card-subtle)',
-              border: `1px solid ${persistenceState.status === PERSISTENCE_STATUS.ERROR ? 'var(--color-danger)' : 'var(--border-subtle)'}`,
-              padding: '0.4rem 0.75rem',
-              borderRadius: 8,
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: persistenceState.status === PERSISTENCE_STATUS.ERROR ? 'var(--color-danger)' : 'var(--text-secondary)',
-            }}
-          >
-            <Database size={14} color={persistenceState.status === PERSISTENCE_STATUS.ERROR ? '#DC2626' : '#2563EB'} />
-            <span>
-              {persistenceState.status === PERSISTENCE_STATUS.SAVING && 'Saving...'}
-              {persistenceState.status === PERSISTENCE_STATUS.SAVED && 'Storage: Synced'}
-              {persistenceState.status === PERSISTENCE_STATUS.ERROR && 'Save Error'}
-              {persistenceState.status === PERSISTENCE_STATUS.IDLE && 'Storage: Active'}
-            </span>
-          </div>
-
-          {/* Role Selector with Security Disclaimer */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'var(--bg-card-subtle)',
-            padding: '0.35rem 0.75rem',
-            borderRadius: 8,
-            border: '1px solid var(--border-subtle)',
-          }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Active Role:</span>
-            <select
-              value={currentRole}
-              onChange={(e) => setCurrentRole(e.target.value)}
-              style={{
-                background: 'transparent',
-                color: 'var(--text-primary)',
-                border: 'none',
-                outline: 'none',
-                fontSize: '0.825rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              {Object.values(ED_ROLE).map(r => (
-                <option key={r} value={r} style={{ background: '#FFFFFF', color: '#182230' }}>{r}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* AI Patient Assistant Intake Button */}
-          <button
-            onClick={() => setShowAssistantModal(true)}
-            style={{
-              background: 'var(--color-blue-subtle)',
-              border: '1px solid var(--color-blue-border)',
-              color: 'var(--color-primary-blue)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.5rem 0.95rem',
-              borderRadius: 8,
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#DBEAFE';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'var(--color-blue-subtle)';
-            }}
-          >
-            <Bot size={16} /> AI Assistant Intake
-          </button>
-
-          {/* Register Patient Button */}
-          <button
-            onClick={() => setShowRegisterModal(true)}
-            style={{
-              background: 'var(--color-primary-blue)',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.5rem 1rem',
-              borderRadius: 8,
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
-              transition: 'background 0.15s ease',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--color-blue-hover)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--color-primary-blue)'}
-          >
-            <UserPlus size={16} /> Register Patient
-          </button>
-
-          {/* Reset Demo Data Button */}
-          <button
-            onClick={handleResetData}
-            title="Reset to fresh synthetic demonstration data"
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-              padding: '0.5rem 0.75rem',
-              borderRadius: 8,
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'var(--bg-card-subtle)';
-              e.currentTarget.style.color = 'var(--text-primary)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'var(--bg-card)';
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }}
-          >
-            Reset Demo
-          </button>
-        </div>
-      </header>
-
-      {/* Navigation Sub-Header Tabs */}
-      <nav
-        className="app-nav-tabs"
-        style={{
-          background: 'var(--bg-card)',
-          borderBottom: '1px solid var(--border-subtle)',
-          padding: '0.5rem 2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
-        <button
-          className={`nav-tab ${activeTab === 'queue' ? 'active' : ''}`}
-          onClick={() => setActiveTab('queue')}
-        >
-          <Users size={16} /> Prioritized Waiting Queue ({queue.length})
-        </button>
-
-        <button
-          className={`nav-tab ${activeTab === 'intake' ? 'active' : ''}`}
-          onClick={() => setActiveTab('intake')}
-        >
-          <ClipboardList size={16} /> Patient Intake ({unassessed.length} Unassessed)
-        </button>
-
-        <button
-          className={`nav-tab ${activeTab === 'audit' ? 'active' : ''}`}
-          onClick={() => setActiveTab('audit')}
-        >
-          <History size={16} /> Audit Trail & Patient Timeline ({combinedEvents.length})
-        </button>
-      </nav>
-
-      {/* Main Content Area */}
-      <main className="app-main-content" style={{ flex: 1, padding: '1.5rem 2rem', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
+    <Dashboard
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      currentRole={currentRole}
+      setCurrentRole={setCurrentRole}
+      roleOptions={Object.values(ED_ROLE)}
+      queue={queue}
+      emergencies={emergencies}
+      reassessments={reassessments}
+      unassessed={unassessed}
+      combinedEvents={combinedEvents}
+      onOpenRegister={() => setShowRegisterModal(true)}
+      onOpenAssistant={() => setShowAssistantModal(true)}
+      onResetData={handleResetData}
+      persistenceState={persistenceState}
+    >
+      {/* Main Content — rendered inside Dashboard's <main> */}
+      <div>
         {/* TAB 1: Live Waiting Queue & Emergency Pathway */}
         {activeTab === 'queue' && (
           <div className="dashboard-grid">
@@ -1039,7 +835,7 @@ export default function App() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Register Patient Modal Dialog */}
       {showRegisterModal && (
@@ -1321,18 +1117,6 @@ export default function App() {
         <Bot size={20} /> AI Intake Assistant
       </button>
 
-      {/* Safety Notice & Regulatory Footer */}
-      <footer style={{
-        padding: '0.9rem 2rem',
-        background: 'var(--bg-card)',
-        borderTop: '1px solid var(--border-subtle)',
-        fontSize: '0.775rem',
-        color: 'var(--text-secondary)',
-        textAlign: 'center',
-        marginTop: 'auto',
-      }}>
-        ⚠️ <strong>Demonstration Only (Anvesh '26)</strong>: This is a workflow-support prototype using synthetic demonstration data. It does not provide autonomous diagnosis, predict acuity, or replace clinician judgement. Authorization in prototype uses client role selection and must be backed by verified OIDC tokens prior to clinical deployment.
-      </footer>
-    </div>
+    </Dashboard>
   );
 }
